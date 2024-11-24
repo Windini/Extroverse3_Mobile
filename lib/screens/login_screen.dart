@@ -51,22 +51,6 @@ Widget build(BuildContext context) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 20),
-              Text(
-                'WELCOME BACK !',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.left,
-              ),
-              SizedBox(height: 10),
-              Text(
-                'To our Company',
-                style: TextStyle(fontSize: 16, color: Colors.white70),
-                textAlign: TextAlign.left,
-              ),
-              SizedBox(height: 20),
               Center(
                 child: Image.asset(
                   'assets/images/extroverse.png',

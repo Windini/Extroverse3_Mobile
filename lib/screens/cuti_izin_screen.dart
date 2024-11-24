@@ -155,21 +155,21 @@ class _CutiIzinScreenState extends State<CutiIzinScreen> {
                   labelText: 'Keterangan',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(50.0),
                     borderSide: BorderSide(
                       color: Colors.white,
                       width: 2.0,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(50.0),
                     borderSide: BorderSide(
                       color: Colors.white,
                       width: 2.0,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(50.0),
                     borderSide: BorderSide(
                       color: Colors.blue,
                       width: 3.0,

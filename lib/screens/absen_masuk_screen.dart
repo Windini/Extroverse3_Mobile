@@ -77,21 +77,21 @@ class AbsenMasukScreen extends StatelessWidget {
                         fontSize: 16,
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(50.0),
                         borderSide: BorderSide(
                           color: Colors.white,
                           width: 2.0,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(50.0),
                         borderSide: BorderSide(
                           color: Colors.white,
                           width: 2.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(50.0),
                         borderSide: BorderSide(
                           color: Colors.blue,
                           width: 3.0,
@@ -105,7 +105,15 @@ class AbsenMasukScreen extends StatelessWidget {
                   onPressed: () {
                     // Aksi untuk cari alamat
                   },
-                  child: Text('Cari Alamat'),
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(), backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Membuat tombol berbentuk lingkaran
+                    padding: EdgeInsets.all(12.0), // Warna latar tombol
+                  ),
+                  child: const Icon(
+                    Icons.search, // Menambahkan ikon pencarian
+                    color: Color.fromARGB(255, 59, 36, 199),// Warna ikon
+                    size: 30.0, // Ukuran ikon
+                  ),
                 ),
               ],
             ),
