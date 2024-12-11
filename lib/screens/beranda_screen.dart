@@ -141,7 +141,7 @@ class BerandaScreen extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => AbsenMasukScreen()),
+                          MaterialPageRoute(builder: (context) => MapWithRadiusScreen()),
                         );
                       },
                       child: Card(

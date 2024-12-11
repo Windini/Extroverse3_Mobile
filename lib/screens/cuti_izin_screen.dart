@@ -236,7 +236,7 @@ class _CutiIzinScreenState extends State<CutiIzinScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 5),
               ElevatedButton(
                 onPressed: _kirimFormulir,
                 child: Text('Ajukan Sekarang'),

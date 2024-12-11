@@ -1,10 +1,130 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:extroverse/screens/status_absen_masuk_screen.dart';
+import 'package:geolocator/geolocator.dart';
+import 'dart:math';
 
-class AbsenMasukScreen extends StatelessWidget {
-  final String namaKaryawan = 'Agus ';
-  final String peranKaryawan = 'Karyawan';
+class MapWithRadiusScreen extends StatefulWidget {
+  @override
+  _MapWithRadiusScreenState createState() => _MapWithRadiusScreenState();
+}
+
+class _MapWithRadiusScreenState extends State<MapWithRadiusScreen> {
+  late GoogleMapController _mapController;
+  static const LatLng _center = LatLng(-6.40801, 108.28146);
+  static const double _radiusInMeters = 600;
+
+  Set<Circle> _circles = {
+    Circle(
+      circleId: CircleId("center_circle"),
+      center: _center,
+      radius: _radiusInMeters,
+      fillColor: Colors.blue.withOpacity(0.3),
+      strokeColor: Colors.blue,
+      strokeWidth: 2,
+    ),
+  };
+
+  Set<Marker> _markers = {
+    Marker(
+      markerId: MarkerId("center_marker"),
+      position: _center,
+      infoWindow: InfoWindow(title: "Lokasi Pusat"),
+    ),
+  };
+
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+  }
+
+  Future<void> _findUserLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Layanan lokasi tidak aktif.')),
+      );
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Izin lokasi ditolak.')),
+        );
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Izin lokasi ditolak secara permanen.')),
+      );
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    LatLng userLocation = LatLng(position.latitude, position.longitude);
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: MarkerId("user_marker"),
+          position: userLocation,
+          infoWindow: InfoWindow(title: "Lokasi Anda"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        ),
+      );
+    });
+
+    _mapController.animateCamera(CameraUpdate.newLatLngZoom(userLocation, 14));
+  }
+
+  bool _isWithinRadius(LatLng point1, LatLng point2, double radius) {
+    const double earthRadius = 6371000; // in meters
+    double latDiff = _degreesToRadians(point2.latitude - point1.latitude);
+    double lngDiff = _degreesToRadians(point2.longitude - point1.longitude);
+
+    double a = sin(latDiff / 2) * sin(latDiff / 2) +
+        cos(_degreesToRadians(point1.latitude)) *
+            cos(_degreesToRadians(point2.latitude)) *
+            sin(lngDiff / 2) *
+            sin(lngDiff / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadius * c <= radius;
+  }
+
+  double _degreesToRadians(double degrees) {
+    return degrees * pi / 180;
+  }
+
+  void _performCheckIn() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    LatLng userLocation = LatLng(position.latitude, position.longitude);
+    bool isInsideRadius = _isWithinRadius(userLocation, _center, _radiusInMeters);
+
+    if (isInsideRadius) {
+      String time = TimeOfDay.now().format(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Absen Berhasil',
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Anda berada di luar radius absen.'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,21 +134,15 @@ class AbsenMasukScreen extends StatelessWidget {
         backgroundColor: Colors.grey[300],
         centerTitle: true,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF001F54), // Navy Tua
-              Color(0xFF003566), // Biru Sedikit Lebih Terang
-              Color(0xFF006494), // Biru Sedang
-              Color(0xFF669BBC), // Biru Muda
+              Color(0xFF001F54),
+              Color(0xFF003566),
+              Color(0xFF006494),
+              Color(0xFF669BBC),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -36,7 +150,6 @@ class AbsenMasukScreen extends StatelessWidget {
         ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
@@ -52,11 +165,11 @@ class AbsenMasukScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hi, $namaKaryawan',
+                        'Hi, Agus',  // Update nama sesuai dengan nama karyawan
                         style: TextStyle(fontSize: 24, color: Colors.white),
                       ),
                       Text(
-                        peranKaryawan,
+                        'Karyawan',  // Update peran sesuai dengan peran karyawan
                         style: TextStyle(fontSize: 16, color: Colors.white70),
                       ),
                     ],
@@ -65,78 +178,72 @@ class AbsenMasukScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Tersusuri di sini',
-                      labelStyle: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                          width: 2.0,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50.0),
-                        borderSide: BorderSide(
-                          color: Colors.blue,
-                          width: 3.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    // Aksi untuk cari alamat
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(), backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Membuat tombol berbentuk lingkaran
-                    padding: EdgeInsets.all(12.0), // Warna latar tombol
-                  ),
-                  child: const Icon(
-                    Icons.search, // Menambahkan ikon pencarian
-                    color: Color.fromARGB(255, 59, 36, 199),// Warna ikon
-                    size: 30.0, // Ukuran ikon
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
             Expanded(
               child: GoogleMap(
+                onMapCreated: _onMapCreated,
                 initialCameraPosition: CameraPosition(
-                  target: LatLng(-6.3264, 108.3198), // Koordinat default
-                  zoom: 14.0,
+                  target: _center,
+                  zoom: 14,
                 ),
+                markers: _markers,
+                circles: _circles,
                 myLocationEnabled: true,
               ),
             ),
             SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => StatusAbsenMasukScreen()),
-                  );
-                },
-                child: Text('Absen Masuk'),
+            ElevatedButton(
+              onPressed: _findUserLocation,
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+                backgroundColor: Colors.white,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.my_location,
+                    color: Color(0xFF003566),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    'Temukan Lokasi',
+                    style: TextStyle(
+                      color: Color(0xFF003566),
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _performCheckIn,
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+                backgroundColor: Colors.white,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Color(0xFF003566),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    'Absen',
+                    style: TextStyle(
+                      color: Color(0xFF003566),
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
