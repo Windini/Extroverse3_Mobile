@@ -7,15 +7,16 @@ class NotificationScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Notifikasi Cuti/Izin'),
-         backgroundColor: Colors.grey[300],
+        backgroundColor: Colors.grey[300],
         centerTitle: true,
-        elevation: 0,leading: IconButton(
+        elevation: 0,
+        leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);  // Kembali ke halaman profil
+            Navigator.pop(context); // Kembali ke halaman profil
           },
         ),
-      ),  
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -54,14 +55,15 @@ class NotificationScreen extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    'Persetujuan Permohonan Cuti Hi Agus Sedih,', 
+                    'Persetujuan Permohonan Cuti Hi Agus Sedih,',
                     style: TextStyle(color: Colors.black54),
                   ),
                   onTap: () {
                     // Navigate to DetailNotification
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => DetailNotification()),
+                      MaterialPageRoute(
+                          builder: (context) => DetailNotification()),
                     );
                   },
                 ),

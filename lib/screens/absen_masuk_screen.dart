@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:math';
+import '../service/Presence_service.dart';
 
 class MapWithRadiusScreen extends StatefulWidget {
   @override
@@ -31,6 +32,8 @@ class _MapWithRadiusScreenState extends State<MapWithRadiusScreen> {
       infoWindow: InfoWindow(title: "Lokasi Pusat"),
     ),
   };
+
+  final PresenceService _apiService = PresenceService(baseUrl: 'http://172.20.10.3:8000');
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
@@ -100,7 +103,7 @@ class _MapWithRadiusScreenState extends State<MapWithRadiusScreen> {
     return degrees * pi / 180;
   }
 
-  void _performCheckIn() async {
+void _performCheckIn() async {
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
@@ -109,11 +112,19 @@ class _MapWithRadiusScreenState extends State<MapWithRadiusScreen> {
     bool isInsideRadius = _isWithinRadius(userLocation, _center, _radiusInMeters);
 
     if (isInsideRadius) {
-      String time = TimeOfDay.now().format(context);
+      Map<String, dynamic> result = await _apiService.createAttendance(
+        title: 'Absen Masuk',
+        description: 'Absen Masuk berdasarkan lokasi',
+        startTime: DateTime.now().toIso8601String(),
+        batasStartTime: DateTime.now().add(Duration(minutes: 10)).toIso8601String(),
+        endTime: DateTime.now().add(Duration(minutes: 30)).toIso8601String(),
+        batasEndTime: DateTime.now().add(Duration(minutes: 35)).toIso8601String(),
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Absen Berhasil',
+            result['message'],
           ),
         ),
       );
@@ -124,6 +135,8 @@ class _MapWithRadiusScreenState extends State<MapWithRadiusScreen> {
         ),
       );
     }
+    print('User Location: $userLocation');
+    print('Is Inside Radius: $isInsideRadius');
   }
 
   @override

@@ -12,18 +12,42 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final LoginService _loginService = LoginService();
+  bool _isLoading = false;
 
-  void _login() {
+   void _login() async {
     if (_formKey.currentState!.validate()) {
-      // Lakukan proses login di sini
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login berhasil!')),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => BerandaScreen()),
-      );
-      // LoginService().login(_emailController.text, _passwordController.text);
+      setState(() {
+        _isLoading = true;
+      });
+
+      final email = _emailController.text;
+      final password = _passwordController.text;
+
+      final result = await _loginService.login(email, password);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login berhasil!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BerandaScreen(
+              email: email,
+              userData: result['data'],
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Login gagal')),
+        );
+      }
     }
   }
 

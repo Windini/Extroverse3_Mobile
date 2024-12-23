@@ -8,6 +8,10 @@ import 'riwayat_absensi_screen.dart';
 
 class BerandaScreen extends StatelessWidget {
   final int notificationCount = 1; // contoh jumlah notifikasi baru
+  final String email;
+  final Map<String, dynamic> userData;
+
+  BerandaScreen({required this.email, required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -62,8 +66,8 @@ class BerandaScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Hi, Agus ',
-                            style: TextStyle(fontSize: 24, color: Colors.white),
+                            'Hi, ${userData['user']['name']}',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                           Text(
                             'Karyawan',
